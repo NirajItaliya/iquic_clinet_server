@@ -1,0 +1,67 @@
+
+
+
+from scapy.fields import *
+from scapy.packet import Packet
+from utils.string_to_ascii import string_to_ascii
+
+class QUICHeader(Packet):
+    """
+    The header for the QUIC CH packet
+    Taken from Wireshark capture example
+    """
+    name = "QUICInitialHeader"
+    fields_desc = [
+        XByteField("Public_Flags", 0xc1),
+        StrFixedLenField("Version", string_to_ascii("00000001"),4),
+        ByteField("DCID_Length", 8),
+        StrFixedLenField("DCID",string_to_ascii("6bafa3cda6256d3c"),length_from=lambda pkt: pkt.DCID_Length),
+        ByteField("SCID_Length", 8),
+        StrFixedLenField("SCID",string_to_ascii("2d35022d62b561f2"),length_from=lambda pkt: pkt.SCID_Length),
+        ByteField("Token_length", 0),
+        StrFixedLenField("Length",bytes.fromhex("4496"),2),
+        LEShortField("Packet_Number",0),
+    ]
+
+class QUICHandshakeHeader(Packet):
+ 
+    name = "QUICLongHeader"
+    fields_desc = [
+        XByteField("Public_Flags", 0xc1),
+        StrFixedLenField("Version", string_to_ascii("00000001"),4),
+        ByteField("DCID_Length", 8),
+        StrFixedLenField("DCID",string_to_ascii("6bafa3cda6256d3c"),length_from=lambda pkt: pkt.DCID_Length),
+        ByteField("SCID_Length", 8),
+        StrFixedLenField("SCID",string_to_ascii("2d35022d62b561f2"),length_from=lambda pkt: pkt.SCID_Length),
+        StrFixedLenField("Length",bytes.fromhex("4496"),2),
+        LEShortField("Packet_Number",0),
+    ]
+
+class QUICShortHeader(Packet) :
+
+    name = "QUICShortHeader"
+    fields_desc = [
+        XByteField("Public_Flags", 0x41),
+        StrFixedLenField("DCID",string_to_ascii("6bafa3cda6256d3c"),8),
+        StrFixedLenField("Packet_Number",0,2),
+    ]
+class QUICGoShortHeader(Packet) :
+
+    name = "QUICShortHeader"
+    fields_desc = [
+        XByteField("Public_Flags", 0x41),
+        StrFixedLenField("DCID",string_to_ascii("6bafa3cd"),4),
+        StrFixedLenField("Packet_Number",0,2),
+    ]
+
+
+
+
+
+
+
+
+
+
+
+

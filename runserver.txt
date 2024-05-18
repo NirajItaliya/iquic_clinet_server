@@ -1,0 +1,24 @@
+sudo wireshark
+
+aioquic:
+
+    Server:
+        python3 examples/http3_server.py --certificate tests/ssl_cert.pem --private-key tests/ssl_key.pem -l keylog
+    client:
+        python3 examples/http3_client.py --ca-certs tests/pycacert.pem https://localhost:4433/
+
+
+quic-go:
+
+    Server:
+        go run example/main.go 
+    client:
+        go run example/client/main.go -keylog keylog https://localhost:6121/
+
+
+
+
+
+
+$ virtualenv aioquicvenv 
+$ source aioquicvenv/bin/activate 
