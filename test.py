@@ -20,7 +20,6 @@ with open("ssl_key.pem", "rb") as fp:
 
 certificate_verify_hash = hashlib.sha384(clinet_hello + server_hello + EE+ certifacte+fin).digest()
 print("hash",bytes.hex(certificate_verify_hash))
-print("SERVER_CONTEXT_STRING",*signature_algorithm_params(SignatureAlgorithm.RSA_PSS_RSAE_SHA256))
 signature = certificate_private_key.sign(
             b" " * 64 + SERVER_CONTEXT_STRING + b"\x00" + certificate_verify_hash,
             *signature_algorithm_params(SignatureAlgorithm.RSA_PSS_RSAE_SHA256),
