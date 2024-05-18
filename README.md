@@ -61,7 +61,7 @@ Linux
 
 On Debian/Ubuntu run:
 
-.. code-block:: console
+.. code-block:: bash
 
    sudo apt install libssl-dev python3-dev
 
