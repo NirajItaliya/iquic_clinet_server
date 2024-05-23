@@ -36,3 +36,8 @@ def hex_to_binary(hex_number):
 
 def hex_to_decimal(hex_number) :
     return int(hex_number, 16)
+
+def decrypte_length(hex_number: bytes):
+    return hex_to_decimal(bytes.hex(hex_number)[1:])
+
+

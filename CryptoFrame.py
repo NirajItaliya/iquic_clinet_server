@@ -134,7 +134,6 @@ class CryptoFrame(Packet) :
         other_extensions_data_string = b''
         for data in other_extensions_data:
             other_extensions_data_string += string_to_ascii(extract_from_packet_as_bytestring(data))
-
         hello = ClientHello(
               random = _random_bytes,
               legacy_session_id = b"",
@@ -148,9 +147,8 @@ class CryptoFrame(Packet) :
               supported_groups = supported_groups,
               supported_versions = [TLS_VERSION_1_3],
               other_extensions = [(get_transport_parameters_extension(QuicProtocolVersion.VERSION_1), other_extensions_data_string)]
-
+             
         )
-        # print(hello)
         tmp_buf = Buffer(capacity=1024)
         push_client_hello(tmp_buf, hello)
 

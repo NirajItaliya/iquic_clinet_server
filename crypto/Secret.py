@@ -214,7 +214,7 @@ class dhke:
                     b" " * 64 + SERVER_CONTEXT_STRING + b"\x00" + certificate_verify_hash,
                     *signature_algorithm_params(SignatureAlgorithm.RSA_PSS_RSAE_SHA256),
                 )
-        return signature
+        return signature 
 
 class Crypto :
 

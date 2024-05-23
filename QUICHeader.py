@@ -1,6 +1,5 @@
 
 
-
 from scapy.fields import *
 from scapy.packet import Packet
 from utils.string_to_ascii import string_to_ascii

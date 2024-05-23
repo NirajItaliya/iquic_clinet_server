@@ -40,7 +40,7 @@ class QUICServerKnowledgeBase(ActiveKnowledgeBase):
     def submit_word(self, word):
 
         if self.server==1:
-            from scapy_iquic_client import QUIC,QUIC_GO
+            from dynemic_leraner import QUIC
         else:
             from scapy_iquic_Online import QUIC
         
@@ -55,7 +55,7 @@ class QUICServerKnowledgeBase(ActiveKnowledgeBase):
         # s = socket.socket()
 
         if self.server==1:
-            s = QUIC_GO("localhost")
+            s = QUIC("localhost")
         else:
             s = QUIC(self.server_name)
 
