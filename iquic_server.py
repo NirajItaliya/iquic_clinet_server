@@ -143,11 +143,12 @@ class iquic_server :
 
         cryptoFrame = CryptoFrameOffsetModify()
         cryptoFrame.setfieldval("Length",bytes.fromhex("4" + bytes.hex(len(certificate + certificate_verify + finish_messges).to_bytes(2, byteorder='big'))[1:]))
-        cryptoFrame.setfieldval("Offset",bytes.fromhex("4" + bytes.hex(len(certificate_part1+ _encryptedExtensions).to_bytes(2, byteorder='big'))[1:]))
+        cryptoFrame.setfieldval("Offset",bytes.fromhex("4" + bytes.hex(len(certificate_part1 + _encryptedExtensions).to_bytes(2, byteorder='big'))[1:]))
         crypto_frame = bytes.fromhex(extract_from_packet_as_bytestring(cryptoFrame))
 
-        pain_payload = crypto_frame + certificate + certificate_verify + finish_messges
+        pain_payload = crypto_frame + certificate +certificate_verify + finish_messges
         padding = bytes.fromhex("00"*(1175 - len(pain_payload) - 16 - 2))
+        padding =  bytes.fromhex("")
         
         # Long Header
         CERTheader = QUICHeader.QUICHandshakeHeader()
@@ -159,8 +160,52 @@ class iquic_server :
         plain_header = bytes.fromhex(extract_from_packet_as_bytestring(CERTheader))
         
         self.cryptoContext.setup(cipher_suite = 0x1302, secret = SessionInstance.get_instance().server_handshake_traffic_secret, version = 1)
-        data = self.cryptoContext.encrypt_packet(plain_header, pain_payload + padding, packetNumber)
-        self.UDPClientSocket.sendto(data,self.address)
+        handshake_data = self.cryptoContext.encrypt_packet(plain_header, pain_payload  + padding , packetNumber)
+        self.UDPClientSocket.sendto(handshake_data ,self.address)
+
+        # dhke.appliction_traffic_computation()
+        
+        # #application data 
+        # packet_number = PacketNumberInstance.get_instance().get_next_packet_number()
+        # header = QUICHeader.QUICShortHeader()
+        # header.setfieldval("DCID",  string_to_ascii(SessionInstance.get_instance().initial_destination_connection_id))
+        # header.setfieldval("Packet_Number",string_to_ascii(bytes.hex(packet_number.to_bytes(2, byteorder='big'))))
+        # plain_header =  bytes.fromhex(extract_from_packet_as_bytestring(header))
+
+        # new_session_tikict = bytes.fromhex(extract_from_packet_as_bytestring(CryptoFrame().new_session_ticket().data))
+        # cryptoFrame = CryptoFrame()
+        # cryptoFrame.setfieldval("Length",bytes.fromhex("4" + bytes.hex(len(new_session_tikict).to_bytes(2, byteorder='big'))[1:]))
+        # crypto_frame = bytes.fromhex(extract_from_packet_as_bytestring(cryptoFrame))
+
+        # strem_data = bytes.fromhex("0004100150000710080121013301ab60374201")
+        # quic_stream_1 = quic_stream()
+        # quic_stream_1.setfieldval("Length",bytes.fromhex("4" + bytes.hex(len(strem_data).to_bytes(2, byteorder='big'))[1:]))
+        # quic_stream_1.setfieldval("Data",strem_data)
+        # quic_stream_1.setfieldval("stream_id", 3)
+        # quic_stream_1 = bytes.fromhex(extract_from_packet_as_bytestring(quic_stream_1))
+
+        # strem_data = bytes.fromhex("02")
+        # quic_stream_2 = quic_stream()
+        # quic_stream_2.setfieldval("Length",bytes.fromhex("4" + bytes.hex(len(strem_data).to_bytes(2, byteorder='big'))[1:]))
+        # quic_stream_2.setfieldval("Data",strem_data)
+        # quic_stream_2.setfieldval("stream_id", 7)
+        # quic_stream_2 = bytes.fromhex(extract_from_packet_as_bytestring(quic_stream_2))
+
+        # strem_data = bytes.fromhex("03")
+        # quic_stream_3 = quic_stream()
+        # quic_stream_3.setfieldval("Length",bytes.fromhex("4" + bytes.hex(len(strem_data).to_bytes(2, byteorder='big'))[1:]))
+        # quic_stream_3.setfieldval("Data",strem_data)
+        # quic_stream_3.setfieldval("stream_id", 11)
+        # quic_stream_3 = bytes.fromhex(extract_from_packet_as_bytestring(quic_stream_3))
+        
+        # pain_payload = crypto_frame + new_session_tikict + quic_stream_1 + quic_stream_2 + quic_stream_3
+
+        # self.cryptoContext.setup(cipher_suite = 0x1302, secret = SessionInstance.get_instance().server_appliction_traffic_secret, version = 1)
+        # data = self.cryptoContext.encrypt_packet(plain_header, pain_payload, packetNumber)
+
+        # self.UDPClientSocket.sendto(handshake_data +data,self.address)
+
+
 
 s = iquic_server("localhost")
 s.server_hello(True)   

@@ -47,7 +47,7 @@ from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 from aioquic.buffer import Buffer
 from aioquic.quic.packet import QuicTransportParameters
 
-from aioquic.tls import ClientHello,Certificate, CertificateVerify,Finished,ServerHello,EncryptedExtensions, push_finished,push_encrypted_extensions,push_certificate_verify,push_server_hello,push_certificate, Group, GROUP_TO_CURVE, encode_public_key, PskKeyExchangeMode, SignatureAlgorithm, TLS_VERSION_1_3, push_client_hello
+from aioquic.tls import ClientHello,Certificate, CertificateVerify,Finished,ServerHello,EncryptedExtensions,NewSessionTicket,push_new_session_ticket, push_finished,push_encrypted_extensions,push_certificate_verify,push_server_hello,push_certificate, Group, GROUP_TO_CURVE, encode_public_key, PskKeyExchangeMode, SignatureAlgorithm, TLS_VERSION_1_3, push_client_hello
 from aioquic.quic.connection import get_transport_parameters_extension, QuicConnection
 from aioquic.quic.configuration import QuicConfiguration
 from aioquic.quic.packet import QuicProtocolVersion
@@ -231,6 +231,17 @@ class CryptoFrame(Packet) :
         )
         tmp_buf = Buffer(capacity=1024)
         push_finished(tmp_buf,fin)
+        return tmp_buf
+    
+    def new_session_ticket(self):
+        ticket = NewSessionTicket(
+            ticket_lifetime = 86400,
+            ticket_age_add = 3151899340,
+            ticket = secrets.token_bytes(64),
+            max_early_data_size = 4294967295
+        )
+        tmp_buf = Buffer(capacity=1024)
+        push_new_session_ticket(tmp_buf,ticket)
         return tmp_buf
     
 class TLSFinish(Packet) :
