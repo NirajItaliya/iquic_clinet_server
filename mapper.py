@@ -14,6 +14,14 @@ def QuicInputMapper(alphabet, s):
             x = s.send(CloseConnectionEvent())
         case "Clinet_FIN":
             x = s.send(SendFINEvent())
+        case "Server_Hello":
+            x = s.send(SendServerHelloEvent())
+        case "Handshake_Packet":
+            x = s.send(SendhandshakedoneEvent())
+        case "Fin":
+            x = s.send(SendFINEvent())
+        case "GET":
+            x = s.send(SendHttpData())
         case default:
             pass
     return x
@@ -37,6 +45,12 @@ def QuicOutputMapper(data):
         output = "EXP"
     elif data == b'HD':
         output = "handshakedone"
+    elif data == b'-':
+        output = "-"
+    elif data == b'Finish+GET':
+        output = "Finish + GET"
+    elif data == b'Error':
+        output = "ERROR"
     else:
         output = "ERROR"
     return output

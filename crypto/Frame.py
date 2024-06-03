@@ -66,6 +66,28 @@ class quic_offset_stream(Packet) :
         XStrLenField("Data", None, length_from = lambda pkt: pkt.Length),
     ]
 
+
+class quic_offset_stream_Modify(Packet) :
+
+    name = "quic_stream"
+    fields_desc = [
+        XByteField("Frame_Type", 0x0e),
+        ByteField("stream_id", 1),
+        StrFixedLenField("offset",bytes.fromhex("4001"),2),
+        StrFixedLenField("Length",bytes.fromhex("4001"),2),
+        XStrLenField("Data", None, length_from = lambda pkt: pkt.Length),
+    ]
+
+class quic_offset_stream_Modify_0f(Packet) :
+
+    name = "quic_stream"
+    fields_desc = [
+        XByteField("Frame_Type", 0x0e),
+        ByteField("stream_id", 1),
+        StrFixedLenField("offset",bytes.fromhex("4001"),2),
+        StrFixedLenField("Length",bytes.fromhex("4001"),2),
+        XStrLenField("Data", None, length_from = lambda pkt: pkt.Length),
+    ]    
 class quic_connection_closed(Packet) :
     name = "connection_closed"
     fields_desc = [
@@ -73,4 +95,10 @@ class quic_connection_closed(Packet) :
         StrFixedLenField("Length",bytes.fromhex("4100"),2),
         ByteField("Reason_phrase_length", 0),
         StrFixedLenField("Reason_phrase",None,length_from = lambda pkt: pkt.Reason_phrase_length),
+    ]
+
+class handshake_done_frame(Packet) :
+    name = "handshake_done"
+    fields_desc =  [
+        XByteField("Frame_Type", 0x1e),
     ]

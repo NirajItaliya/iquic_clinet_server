@@ -37,13 +37,19 @@ def main():
         exit(0)
 
 
-    input_vocabulary = [
-        "Clinet_Hello",
-        "Clinet_FIN",
-        "GET",
-        "CLOSE",
-    ]
+    # input_vocabulary = [
+    #     "Clinet_Hello",
+    #     "Clinet_FIN",
+    #     "GET",
+    #     "CLOSE",
+    # ]
 
+    input_vocabulary = [
+        "Server_Hello",
+        "Handshake_Packet",
+        "Fin",
+        "GET",
+    ]
 
     quicServerBase = QUICServerKnowledgeBase(sys.argv[1], server)
     

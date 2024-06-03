@@ -427,7 +427,7 @@ async def main(
         client._quic.close(error_code=ErrorCode.H3_NO_ERROR)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" and "__file__" in globals():
     defaults = QuicConfiguration(is_client=True)
 
     parser = argparse.ArgumentParser(description="HTTP/3 client")

@@ -10,3 +10,14 @@ class SendFINEvent:
 class CloseConnectionEvent:
     pass
 
+class SendServerHelloEvent:
+    pass
+
+class SendhandshakedoneEvent:
+    pass
+
+class SendhandshakeEvent:
+    pass
+
+class SendHttpData :
+    pass 

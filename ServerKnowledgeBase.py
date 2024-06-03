@@ -42,7 +42,8 @@ class QUICServerKnowledgeBase(ActiveKnowledgeBase):
         if self.server==1:
             from dynemic_leraner import QUIC
         else:
-            from scapy_iquic_Online import QUIC
+            # from scapy_iquic_Online import QUIC
+            from iquic_server import iquic_server
         
 
         # self._logger.debug("Submiting word '{}' to the network target".format(word))
@@ -57,7 +58,7 @@ class QUICServerKnowledgeBase(ActiveKnowledgeBase):
         if self.server==1:
             s = QUIC("localhost")
         else:
-            s = QUIC(self.server_name)
+            s = iquic_server(self.server_name)
 
         # # Reuse the connection
         # s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

@@ -208,7 +208,7 @@ class dhke:
                         password=None
                     )
 
-        certificate_verify_hash = hashlib.sha384(SessionInstance.get_instance().tlschlo + SessionInstance.get_instance().tlschlo + SessionInstance.get_instance().crypto_cert + SessionInstance.get_instance().crypto_extensions).digest()
+        certificate_verify_hash = hashlib.sha384(SessionInstance.get_instance().tlschlo + SessionInstance.get_instance().tlsshalo + SessionInstance.get_instance().crypto_extensions + SessionInstance.get_instance().crypto_cert ).digest()
 
         signature = certificate_private_key.sign(
                     b" " * 64 + SERVER_CONTEXT_STRING + b"\x00" + certificate_verify_hash,
@@ -251,3 +251,10 @@ class Crypto :
         payload = self.crypto_context.encrypt_packet(plain_header,plain_payload,hex_to_decimal(extract_from_packet_as_bytestring(plain_header)[-4:]))
         return payload
 
+class utils: 
+    def findpakettype(first_bytes:bytes) :
+        if hex_to_binary(bytes.hex(first_bytes))[2:4] == "00" :
+            return "initial"
+        elif hex_to_binary(bytes.hex(first_bytes))[2:4] == "10":
+            return "handshake"
+        else : return "1-RTT"

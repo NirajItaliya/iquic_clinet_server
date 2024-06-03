@@ -3,25 +3,6 @@ import secrets
 from scapy.compat import Any, Optional, Union
 from scapy.fields import *
 from scapy.packet import Packet
-# from scapy.layers.tls.handshake import TLSClientHello
-# from scapy.layers.tls.extensions import (
-#     TLS_Ext_SupportedGroups,
-#     TLS_Ext_SupportedVersion_CH,
-#     TLS_Ext_SignatureAlgorithms,
-#     TLS_Ext_ServerName,
-#     ServerName,
-#     TLS_Ext_PSKKeyExchangeModes,
-#     TLS_Ext_ALPN,
-#     ProtocolName,
-#     TLS_Ext_Unknown,
-#     _tls_ext
-# )
-# from scapy.layers.tls.keyexchange_tls13 import (
-#     TLS_Ext_KeyShare_CH,
-#     KeyShareEntry,
-#     TLS_Ext_KeyShare_HRR,
-#     TLS_Ext_PreSharedKey_CH
-# )
 from utils.SessionInstance import SessionInstance
 from utils.packet_to_hex import extract_from_packet_as_bytestring
 from utils.string_to_ascii import string_to_ascii
@@ -46,6 +27,7 @@ from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
 from aioquic.buffer import Buffer
 from aioquic.quic.packet import QuicTransportParameters
+ 
 
 from aioquic.tls import ClientHello,Certificate, CertificateVerify,Finished,ServerHello,EncryptedExtensions,NewSessionTicket,push_new_session_ticket, push_finished,push_encrypted_extensions,push_certificate_verify,push_server_hello,push_certificate, Group, GROUP_TO_CURVE, encode_public_key, PskKeyExchangeMode, SignatureAlgorithm, TLS_VERSION_1_3, push_client_hello
 from aioquic.quic.connection import get_transport_parameters_extension, QuicConnection
