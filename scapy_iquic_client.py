@@ -20,9 +20,9 @@ from  Keylog import KeyFile
 
 
 # https://quic.aiortc.org:443
-DPORT = 6121
+DPORT = 5050
 # DPORT = 4433
-ip ="127.0.0.1"
+ip ="localhost"
 
 # DPORT = 443
 # ip ="62.21.254.154"
@@ -45,7 +45,7 @@ class QUIC :
         SessionInstance.get_instance().initial_source_connection_id = str(format(source_id, 'x').zfill(16))
 
         self.UDPClientSocket = socket.socket(family = socket.AF_INET, type =socket.SOCK_DGRAM)
-        self.UDPClientSocket.connect(("localhost", 4433))
+        self.UDPClientSocket.connect(("localhost", 5050))
         dhke.set_up_my_keys()
         self.UDPClientSocket.settimeout(.5)
 
@@ -983,23 +983,28 @@ class QUIC_GO :
 
 
 aioquic =  QUIC("localhost")
-quic_go = QUIC_GO("localhost")
+print(aioquic.initial_chlo(True))
+KeyFile.FileGenret()
+print(aioquic.send_finish())
+print(aioquic.Send_application_header())
+print(aioquic.connection_close())
+# quic_go = QUIC_GO("localhost")
 
 
-print("----------------aioquic---------------------------------")
-if aioquic.initial_chlo(True) == b'Server_Hello+Handshake+appliction_data' :
-    print(b'Server_Hello+Handshake+appliction_data')
-    KeyFile.FileGenret()
-    print(aioquic.send_finish())
-    print(aioquic.Send_application_header())
-    print(aioquic.connection_close())
-else : print("ERROR: Server off")
+# print("----------------aioquic---------------------------------")
+# if aioquic.initial_chlo(True) == b'Server_Hello+Handshake+appliction_data' :
+#     print(b'Server_Hello+Handshake+appliction_data')
+#     KeyFile.FileGenret()
+#     print(aioquic.send_finish())
+#     print(aioquic.Send_application_header())
+#     print(aioquic.connection_close())
+# else : print("ERROR: Server off")
 
-print("----------------quic-go---------------------------------")
-if quic_go.initial_chlo(True) == b'Server_Hello+Handshake+appliction_data' :
-    print(b'Server_Hello+Handshake+appliction_data')
-    KeyFile.FileGenret()
-    print(quic_go.send_finish())
-    print(quic_go.Send_application_header())
-    print(quic_go.connection_close())
-else : print("ERROR: Server off")
+# print("----------------quic-go---------------------------------")
+# if quic_go.initial_chlo(True) == b'Server_Hello+Handshake+appliction_data' :
+#     print(b'Server_Hello+Handshake+appliction_data')
+#     KeyFile.FileGenret()
+#     print(quic_go.send_finish())
+#     print(quic_go.Send_application_header())
+#     print(quic_go.connection_close())
+# else : print("ERROR: Server off")

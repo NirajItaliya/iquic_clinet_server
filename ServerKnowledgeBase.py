@@ -43,7 +43,7 @@ class QUICServerKnowledgeBase(ActiveKnowledgeBase):
             from dynemic_leraner import QUIC
         else:
             # from scapy_iquic_Online import QUIC
-            from iquic_server import iquic_server
+            from iquic_server2 import iquic_server
         
 
         # self._logger.debug("Submiting word '{}' to the network target".format(word))

@@ -16,11 +16,11 @@ def QuicInputMapper(alphabet, s):
             x = s.send(SendFINEvent())
         case "Server_Hello":
             x = s.send(SendServerHelloEvent())
-        case "Handshake_Packet":
+        case "EE+CERT+CV+FIN":
+            x = s.send(SendhandshakeEvent())
+        case "Handshake_Done":
             x = s.send(SendhandshakedoneEvent())
-        case "Fin":
-            x = s.send(SendFINEvent())
-        case "GET":
+        case "HTTP":
             x = s.send(SendHttpData())
         case default:
             pass
@@ -36,7 +36,7 @@ def QuicOutputMapper(data):
     elif data == b"ERROR":
         output = "ERROR"
     elif data == b"closed":
-        output = "-"
+        output = "closed"
     elif data == b"html":
         output = "HTTP"
     elif data == b"HTML":
@@ -48,7 +48,7 @@ def QuicOutputMapper(data):
     elif data == b'-':
         output = "-"
     elif data == b'Finish+GET':
-        output = "Finish + GET"
+        output = "FIN + GET"
     elif data == b'Error':
         output = "ERROR"
     else:

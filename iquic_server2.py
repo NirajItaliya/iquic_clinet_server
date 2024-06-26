@@ -29,16 +29,15 @@ ip = "localhost"
 port = 5050
 UDPClientSocket.bind((ip, port))
 
-serverhello = False
-handshkepacket = False
-hadshake_done = False
-
+count = 0
+from trigger_client_dummy import run_rference_client
 
 
 class iquic_server :
     def __init__(self,s) -> None:
         self.cryptoContext = CryptoContext()
         self.crypto_pair = CryptoPair() 
+        self.count = count
         self.serverhello = False
         self.handshkepacket = False
         self.hadshake_done = False
@@ -46,6 +45,9 @@ class iquic_server :
         self.address = None
         self.handshakeoffset = 25
         self.applicationoffest = 9
+        run_rference_client()
+
+
 
     def reset(self, reset_server, reset_run=True):
         if reset_run:
@@ -61,16 +63,13 @@ class iquic_server :
             SessionInstance.get_instance().client_handshake_secret = b""
             SessionInstance.get_instance().server_handshake_secret =b""
             SessionInstance.get_instance().handshake_done = False
-            self.serverhello = False
-            self.handshkepacket = False
-            self.hadshake_done = False
+            # # self.UDPClientSocket.connect()
     
     def server_hello(self,only_reset):
         self.reset(only_reset)
         try :
+            print(4 + "5")
             datarev_1,self.address = self.UDPClientSocket.recvfrom(1300)
-            while  len(datarev_1) < 1000 :
-                 datarev_1,self.address = self.UDPClientSocket.recvfrom(1300)
             DCID = datarev_1[6:14]
             SessionInstance.get_instance().client_initial_destination_connection_id= bytes.hex(DCID)
             SCID = datarev_1[15:15+8]
@@ -82,9 +81,13 @@ class iquic_server :
             clinet_public_key = pain_payload[134:134+32]
             SessionInstance.get_instance().randome_value = pain_payload[10:10+32]
             SessionInstance.get_instance().tlschlo = pain_payload[4:377+4]
-        except Exception as e:
-            print(e)
-            print("not recived clinet hello packet")
+        except :
+            self.UDPClientSocket.sendto(bytes.fromhex(SessionInstance.get_instance().dummy_packet_serverhello),("localhost",5050))
+            if self.serverhello == False  and  self.handshkepacket == False and self.hadshake_done == False:
+                self.serverhello = True 
+                return b"-"
+            else : 
+                return b"EXP"
 
 
         # Long Header
@@ -122,10 +125,9 @@ class iquic_server :
 
     def Encrypted_Extensions(self) :
         packetNumber = PacketNumberInstance.get_instance().get_next_packet_number()
-
         _encryptedExtensions = bytes.fromhex(extract_from_packet_as_bytestring(CryptoFrame().get_EncryptedExtensions().data))
         SessionInstance.get_instance().crypto_extensions = _encryptedExtensions
-
+      
         main_certificate =  bytes.fromhex(extract_from_packet_as_bytestring(CryptoFrame().get_Certificate().data))
         SessionInstance.get_instance().crypto_cert = main_certificate
         certificate_part1 = main_certificate[:1043]    
@@ -146,9 +148,16 @@ class iquic_server :
         plain_header = bytes.fromhex(extract_from_packet_as_bytestring(EEheder))
 
         # padding = bytes.fromhex("00"*(1043))
-       
-        self.cryptoContext.setup(cipher_suite = 0x1302, secret = SessionInstance.get_instance().server_handshake_traffic_secret, version = 1)
-        data_EE = self.cryptoContext.encrypt_packet(plain_header, pain_payload, packetNumber)
+        try: 
+            self.cryptoContext.setup(cipher_suite = 0x1302, secret = SessionInstance.get_instance().server_handshake_traffic_secret, version = 1)
+            data_EE = self.cryptoContext.encrypt_packet(plain_header, pain_payload, packetNumber)
+        except:
+            self.UDPClientSocket.sendto(bytes.fromhex(SessionInstance.get_instance().dummy_packet_handshake),("localhost",5050))
+            if self.serverhello == True and self.handshkepacket == False and self.hadshake_done == False :
+                self.handshkepacket = True 
+                return b"Finish+GET"
+            else :
+                return b"EXP"
         # self.UDPClientSocket.sendto(data_EE,self.address)
 
         packetNumber = PacketNumberInstance.get_instance().get_next_packet_number()
@@ -182,8 +191,6 @@ class iquic_server :
         handshake_data = self.cryptoContext.encrypt_packet(plain_header, pain_payload, packetNumber)
         dhke.appliction_traffic_computation()
         KeyFile.FileGenret()
-
-
 
         #application data 
         packet_number = PacketNumberInstance.get_instance().get_next_packet_number()
@@ -221,8 +228,16 @@ class iquic_server :
         pain_payload = crypto_frame + new_session_tikict + quic_stream_1 + quic_stream_2 + quic_stream_3
         self.cryptoContext.setup(cipher_suite = 0x1302, secret = SessionInstance.get_instance().server_appliction_traffic_secret, version = 1)
         data = self.cryptoContext.encrypt_packet(plain_header, pain_payload, packet_number)
-        self.UDPClientSocket.sendto(data_EE,self.address)
-        self.UDPClientSocket.sendto(handshake_data + data,self.address)
+        try :
+            self.UDPClientSocket.sendto(data_EE,self.address)
+            self.UDPClientSocket.sendto(handshake_data + data,self.address)
+        except:
+            self.UDPClientSocket.sendto(bytes.fromhex(SessionInstance.get_instance().dummy_packet_handshake),("localhost",5050))
+            if self.serverhello == True and self.handshkepacket == False and self.hadshake_done == False :
+                self.handshkepacket = True 
+                return b"Finish+GET"
+            else :
+                return b"EXP"
 
         pattern = b""
         try :
@@ -279,6 +294,8 @@ class iquic_server :
         self.UDPClientSocket.sendto(data,self.address)
 
     def send_handshake_done(self):
+        
+        
         haeader = QUICHeader.QUICShortHeader()
         packet_number = PacketNumberInstance.get_instance().get_next_packet_number()
         haeader.setfieldval("Public_Flags",0x41)
@@ -311,15 +328,19 @@ class iquic_server :
             self.UDPClientSocket.sendto(data,self.address)
             recve_ack = self.UDPClientSocket.recv(1300)
             return  b"-"
-        except: return b"Error"
+        except:
+            self.UDPClientSocket.sendto(bytes.fromhex(SessionInstance.get_instance().dummy_packet_handshake_done),("localhost",5050))
+            self.UDPClientSocket.sendto(bytes.fromhex(SessionInstance.get_instance().dummy_packet_handshake_done),("localhost",5050))
+            if self.serverhello == True and self.handshkepacket == True and self.hadshake_done == False  :
+                self.hadshake_done  = True 
+                return b"-"
+            else :
+                return b"EXP"
     
 
     def send_http(self) :
 
-        # if self.serverhello == True and self.handshkepacket == True and self.hadshake_done == True  :
-        #     return b"-"
-        # else :
-        #     return b"EXP"
+
         haeader = QUICHeader.QUICShortHeader()
         packet_number = PacketNumberInstance.get_instance().get_next_packet_number()
         haeader.setfieldval("Public_Flags",0x41)
@@ -344,7 +365,14 @@ class iquic_server :
         try: 
             data = self.cryptoContext.encrypt_packet(plain_header, plain_payload, packet_number)
             self.UDPClientSocket.sendto(data,self.address) # 1
-        except: return b"Error"
+        except: 
+            self.UDPClientSocket.sendto(bytes.fromhex(SessionInstance.get_instance().dummy_packet_http),("localhost",5050))
+            self.UDPClientSocket.sendto(bytes.fromhex(SessionInstance.get_instance().dummy_packet_http),("localhost",5050))
+            if self.serverhello == True and self.handshkepacket == True and self.hadshake_done == True  :
+                self.UDPClientSocket.sendto(bytes.fromhex(SessionInstance.get_instance().dummy_packet_http),("localhost",5050))
+                return b"closed"
+            else :
+                return b"EXP"
 
         haeader = QUICHeader.QUICShortHeader()
         packet_number = PacketNumberInstance.get_instance().get_next_packet_number()
@@ -366,7 +394,12 @@ class iquic_server :
         try: 
             data = self.cryptoContext.encrypt_packet(plain_header, plain_payload, packet_number)
             self.UDPClientSocket.sendto(data,self.address) # 1
-        except: return b"Error"
+        except: 
+            if self.serverhello == True and self.handshkepacket == True and self.hadshake_done == True  :
+                return b"closed"
+            else :
+                return b"EXP"
+
 
         haeader = QUICHeader.QUICShortHeader()
         packet_number = PacketNumberInstance.get_instance().get_next_packet_number()
@@ -388,7 +421,12 @@ class iquic_server :
         try: 
             data = self.cryptoContext.encrypt_packet(plain_header, plain_payload, packet_number)
             self.UDPClientSocket.sendto(data,self.address) # 1
-        except: return b"Error"
+        except:
+            if self.serverhello == True and self.handshkepacket == True and self.hadshake_done == True  :
+                return b"closed"
+            else :
+                return b"EXP"
+
 
         haeader = QUICHeader.QUICShortHeader()
         packet_number = PacketNumberInstance.get_instance().get_next_packet_number()
@@ -409,7 +447,12 @@ class iquic_server :
         try: 
             data = self.cryptoContext.encrypt_packet(plain_header, plain_payload, packet_number)
             self.UDPClientSocket.sendto(data,self.address) # 1
-        except: return b"Error"
+        except: 
+            if self.serverhello == True and self.handshkepacket == True and self.hadshake_done == True  :
+                return b"closed"
+            else :
+                return b"EXP"
+
 
 
         return b"closed"

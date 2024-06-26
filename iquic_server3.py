@@ -120,6 +120,33 @@ class iquic_server :
         except: return b"Error"
         
 
+    def Encrypted_Extensions2(self):
+        packetNumber = PacketNumberInstance.get_instance().get_next_packet_number()
+
+        _encryptedExtensions = bytes.fromhex(extract_from_packet_as_bytestring(CryptoFrame().get_EncryptedExtensions().data))
+        SessionInstance.get_instance().crypto_extensions = _encryptedExtensions
+
+        cryptoFrame = CryptoFrame()
+        cryptoFrame.setfieldval("Length",bytes.fromhex("4" + bytes.hex(len(_encryptedExtensions).to_bytes(2, byteorder='big'))[1:]))
+        crypto_frame = bytes.fromhex(extract_from_packet_as_bytestring(cryptoFrame))
+
+        pain_payload = crypto_frame + _encryptedExtensions
+
+        # Long Header
+        EEheder = QUICHeader.QUICHandshakeHeader()
+        EEheder.setfieldval("Public_Flags", 0xe1)
+        EEheder.setfieldval("DCID",  string_to_ascii(SessionInstance.get_instance().initial_destination_connection_id))
+        EEheder.setfieldval("SCID",  string_to_ascii(SessionInstance.get_instance().initial_source_connection_id))
+        EEheder.setfieldval("Packet_Number", packetNumber * 256 )
+        EEheder.setfieldval("Length", bytes.fromhex("4" + bytes.hex((len(pain_payload) + 18).to_bytes(2, byteorder='big'))[1:]))
+        plain_header = bytes.fromhex(extract_from_packet_as_bytestring(EEheder))
+
+        # padding = bytes.fromhex("00"*(1043))
+       
+        self.cryptoContext.setup(cipher_suite = 0x1302, secret = SessionInstance.get_instance().server_handshake_traffic_secret, version = 1)
+        data_EE = self.cryptoContext.encrypt_packet(plain_header, pain_payload, packetNumber)
+        self.UDPClientSocket.sendto(data_EE,self.address)
+
     def Encrypted_Extensions(self) :
         packetNumber = PacketNumberInstance.get_instance().get_next_packet_number()
 

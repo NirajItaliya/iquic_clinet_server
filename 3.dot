@@ -1,0 +1,33 @@
+digraph "Automata" {
+"0" [shape=doubleoctagon, style=filled, fillcolor=white, URL="0"];
+"1" [shape=ellipse, style=filled, fillcolor=white, URL="1"];
+"2" [shape=ellipse, style=filled, fillcolor=white, URL="2"];
+"3" [shape=ellipse, style=filled, fillcolor=white, URL="3"];
+"0" -> "1" [fontsize=5, label="Server_Hello / -", URL="t0"];
+"0" -> "0" [fontsize=5, label="EE+CERT+CV+FIN / EXP", URL="t1"];
+"0" -> "0" [fontsize=5, label="Handshake_Done / EXP", URL="t2"];
+"0" -> "0" [fontsize=5, label="HTTP / EXP", URL="t3"];
+"1" -> "1" [fontsize=5, label="Server_Hello / EXP", URL="t4"];
+"1" -> "2" [fontsize=5, label="EE+CERT+CV+FIN / FIN + GET", URL="t5"];
+"1" -> "1" [fontsize=5, label="Handshake_Done / EXP", URL="t6"];
+"1" -> "1" [fontsize=5, label="HTTP / EXP", URL="t7"];
+"2" -> "2" [fontsize=5, label="Server_Hello / EXP", URL="t8"];
+"2" -> "2" [fontsize=5, label="EE+CERT+CV+FIN / EXP", URL="t9"];
+"2" -> "3" [fontsize=5, label="Handshake_Done / -", URL="t10"];
+"2" -> "2" [fontsize=5, label="HTTP / EXP", URL="t11"];
+"3" -> "3" [fontsize=5, label="Server_Hello / EXP", URL="t12"];
+"3" -> "3" [fontsize=5, label="EE+CERT+CV+FIN / EXP", URL="t13"];
+"3" -> "3" [fontsize=5, label="Handshake_Done / EXP", URL="t14"];
+"3" -> "3" [fontsize=5, label="HTTP / closed", URL="t15"];
+}
+
+
+==> QUIC machine Automata dumped in 3.dot
+
+Knowledge base stats: 
+	- nb query= 503
+	- nb submited query= 125
+	- nb letter= 1262
+	- nb submited letter= 440
+
+==> Taken Time:335.14480233192444

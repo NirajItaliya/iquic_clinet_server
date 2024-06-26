@@ -21,3 +21,6 @@ class SendhandshakeEvent:
 
 class SendHttpData :
     pass 
+
+class runrefrenceClient:
+    pass

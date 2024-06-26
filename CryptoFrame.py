@@ -1,4 +1,5 @@
 import secrets
+import os
 
 from scapy.compat import Any, Optional, Union
 from scapy.fields import *
@@ -47,7 +48,7 @@ class CryptoFrameModify(Packet) :
         ByteField("Offset", 0),
         StrFixedLenField("Length",bytes.fromhex("00"),1),
     ]
-    
+
 class CryptoFrameOffsetModify(Packet) :
     """
     The Crypto Frame 
@@ -218,8 +219,9 @@ class CryptoFrame(Packet) :
     def new_session_ticket(self):
         ticket = NewSessionTicket(
             ticket_lifetime = 86400,
-            ticket_age_add = 3151899340,
-            ticket = secrets.token_bytes(64),
+            ticket_age_add=struct.unpack("I", os.urandom(4))[0],
+            ticket_nonce=b"",
+            ticket=os.urandom(64),
             max_early_data_size = 4294967295
         )
         tmp_buf = Buffer(capacity=1024)

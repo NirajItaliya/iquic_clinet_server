@@ -46,9 +46,9 @@ def main():
 
     input_vocabulary = [
         "Server_Hello",
-        "Handshake_Packet",
-        "Fin",
-        "GET",
+        "EE+CERT+CV+FIN",
+        "Handshake_Done",
+        "HTTP",
     ]
 
     quicServerBase = QUICServerKnowledgeBase(sys.argv[1], server)
