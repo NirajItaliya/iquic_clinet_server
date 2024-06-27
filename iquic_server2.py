@@ -41,6 +41,7 @@ class iquic_server :
         self.serverhello = False
         self.handshkepacket = False
         self.hadshake_done = False
+        self.http = False
         self.UDPClientSocket  = UDPClientSocket
         self.address = None
         self.handshakeoffset = 25
@@ -83,7 +84,7 @@ class iquic_server :
             SessionInstance.get_instance().tlschlo = pain_payload[4:377+4]
         except :
             self.UDPClientSocket.sendto(bytes.fromhex(SessionInstance.get_instance().dummy_packet_serverhello),("localhost",5050))
-            if self.serverhello == False  and  self.handshkepacket == False and self.hadshake_done == False:
+            if self.serverhello == False  and  self.handshkepacket == False and self.hadshake_done == False and self.http == False:
                 self.serverhello = True 
                 return b"-"
             else : 
@@ -153,7 +154,7 @@ class iquic_server :
             data_EE = self.cryptoContext.encrypt_packet(plain_header, pain_payload, packetNumber)
         except:
             self.UDPClientSocket.sendto(bytes.fromhex(SessionInstance.get_instance().dummy_packet_handshake),("localhost",5050))
-            if self.serverhello == True and self.handshkepacket == False and self.hadshake_done == False :
+            if self.serverhello == True and self.handshkepacket == False and self.hadshake_done == False and self.http == False :
                 self.handshkepacket = True 
                 return b"Finish+GET"
             else :
@@ -233,7 +234,7 @@ class iquic_server :
             self.UDPClientSocket.sendto(handshake_data + data,self.address)
         except:
             self.UDPClientSocket.sendto(bytes.fromhex(SessionInstance.get_instance().dummy_packet_handshake),("localhost",5050))
-            if self.serverhello == True and self.handshkepacket == False and self.hadshake_done == False :
+            if self.serverhello == True and self.handshkepacket == False and self.hadshake_done == False and self.http == False :
                 self.handshkepacket = True 
                 return b"Finish+GET"
             else :
@@ -329,8 +330,8 @@ class iquic_server :
             recve_ack = self.UDPClientSocket.recv(1300)
             return  b"-"
         except:
-            self.UDPClientSocket.sendto(bytes.fromhex(SessionInstance.get_instance().dummy_packet_handshake_done),("localhost",5050))
-            self.UDPClientSocket.sendto(bytes.fromhex(SessionInstance.get_instance().dummy_packet_handshake_done),("localhost",5050))
+            for i in range(0,3):
+                self.UDPClientSocket.sendto(bytes.fromhex(SessionInstance.get_instance().dummy_packet_handshake_done),("localhost",5050))
             if self.serverhello == True and self.handshkepacket == True and self.hadshake_done == False  :
                 self.hadshake_done  = True 
                 return b"-"
@@ -366,9 +367,10 @@ class iquic_server :
             data = self.cryptoContext.encrypt_packet(plain_header, plain_payload, packet_number)
             self.UDPClientSocket.sendto(data,self.address) # 1
         except: 
-            self.UDPClientSocket.sendto(bytes.fromhex(SessionInstance.get_instance().dummy_packet_http),("localhost",5050))
-            self.UDPClientSocket.sendto(bytes.fromhex(SessionInstance.get_instance().dummy_packet_http),("localhost",5050))
-            if self.serverhello == True and self.handshkepacket == True and self.hadshake_done == True  :
+            for i in range(0,3):
+                self.UDPClientSocket.sendto(bytes.fromhex(SessionInstance.get_instance().dummy_packet_http),("localhost",5050))
+            if self.serverhello == True and self.handshkepacket == True and self.hadshake_done == True and self.http == False :
+                self.http = True
                 self.UDPClientSocket.sendto(bytes.fromhex(SessionInstance.get_instance().dummy_packet_http),("localhost",5050))
                 return b"closed"
             else :
@@ -395,7 +397,10 @@ class iquic_server :
             data = self.cryptoContext.encrypt_packet(plain_header, plain_payload, packet_number)
             self.UDPClientSocket.sendto(data,self.address) # 1
         except: 
-            if self.serverhello == True and self.handshkepacket == True and self.hadshake_done == True  :
+            for i in range(0,3):
+                self.UDPClientSocket.sendto(bytes.fromhex(SessionInstance.get_instance().dummy_packet_http),("localhost",5050))
+            if self.serverhello == True and self.handshkepacket == True and self.hadshake_done == True and self.http == False :
+                self.http = True
                 return b"closed"
             else :
                 return b"EXP"
@@ -422,7 +427,10 @@ class iquic_server :
             data = self.cryptoContext.encrypt_packet(plain_header, plain_payload, packet_number)
             self.UDPClientSocket.sendto(data,self.address) # 1
         except:
-            if self.serverhello == True and self.handshkepacket == True and self.hadshake_done == True  :
+            for i in range(0,3):
+                self.UDPClientSocket.sendto(bytes.fromhex(SessionInstance.get_instance().dummy_packet_http),("localhost",5050))
+            if self.serverhello == True and self.handshkepacket == True and self.hadshake_done == True  and self.http == False  :
+                self.http = True
                 return b"closed"
             else :
                 return b"EXP"
@@ -447,14 +455,15 @@ class iquic_server :
         try: 
             data = self.cryptoContext.encrypt_packet(plain_header, plain_payload, packet_number)
             self.UDPClientSocket.sendto(data,self.address) # 1
-        except: 
-            if self.serverhello == True and self.handshkepacket == True and self.hadshake_done == True  :
+        except:
+            for i in range(0,3):
+                self.UDPClientSocket.sendto(bytes.fromhex(SessionInstance.get_instance().dummy_packet_http),("localhost",5050)) 
+            if self.serverhello == True and self.handshkepacket == True and self.hadshake_done == True and self.http == False :
+                self.http = True
                 return b"closed"
             else :
                 return b"EXP"
-
-
-
+            
         return b"closed"
     
     def send(self, command):
